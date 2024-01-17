@@ -79,7 +79,7 @@ elif opts.city == 'yancheng':
 
 print('---------------------2 load self generated graph---------------')
 rn_graph_dir = '{}/{}_graph.gpickle'.format(save_path_map,E_data_name)
-rn,raw_rn_dict= load_rn_shp(rn_graph_dir, is_directed=True)# 加载路网数据
+rn,raw_rn_dict= load_rn_shp(rn_graph_dir, is_directed=True)
 print('---------------------3 load GNN graph---------------')
 GNN_graph_dir = '{}/GNN_graph.gpickle'.format(save_path_map,E_data_name)
 edge_index,neighbor_all= load_GNN_graph(GNN_graph_dir)
@@ -127,7 +127,7 @@ args_dict = {
     # input data params
     'keep_ratio':opts.keep_ratio,
     'grid_size':opts.grid_size,
-    'time_span':time_span, # 连续点间隔1秒
+    'time_span':time_span,
     'win_size':50,
     'ds_type':opts.ds_type,
     'split_flag':True,
@@ -197,7 +197,7 @@ if opts.city == 'Porto':
 if opts.city == 'yancheng':
     traj_dict_map = get_candi_proba(rn_route,trg_trajs)
 
-np.save('{}/traj_dict_map_{}.npy'.format(save_path_map,i),traj_dict_map) # 注意带上后缀名
+np.save('{}/traj_dict_map_{}.npy'.format(save_path_map,i),traj_dict_map) 
 print('traj_dict_map save well')
 
 data_dir = save_path_map + '/traj_dict_map.npy'
@@ -220,7 +220,7 @@ if args.city =='Porto':
     traj_dict_merge = merge_traj(11,'traj_dict_map')
 if args.city == 'yancheng':
     traj_dict_merge = merge_traj(41,'traj_dict_map')
-np.save('{}/traj_dict_map.npy'.format(save_path_map),traj_dict_merge) # 注意带上后缀名
+np.save('{}/traj_dict_map.npy'.format(save_path_map),traj_dict_merge)
 
 print(len(traj_dict_merge))
 
@@ -257,12 +257,12 @@ print('the length of  traj_dict_last ',len(traj_dict_last))
 # print('the user_cent of {} is {}'.format(opts.city,user_cent))
 # the user_cent of Porto is 442  the length of raw traj_dict_last  107699
 # the user_cent of Porto is 419  the length of raw traj_dict_last  21640
-# np.save('{}/traj_dict_last.npy'.format(save_path_map),traj_dict_last) # 注意带上后缀名
+# np.save('{}/traj_dict_last.npy'.format(save_path_map),traj_dict_last)
 
 # 3 split data for RNTrajRec
 
 def data_augment(df_list):
-    random_seed = 42  # 你可以选择任何整数作为种子值
+    random_seed = 42  
     random.seed(random_seed)
     aug_df = []
     for df in df_list:
@@ -283,10 +283,10 @@ def split_data_for_RN(save_path_map, random_seed=42):
     trg_trajs = [value for value in trg_trajs.values()]
     ttl_lens = len(trg_trajs)
 
-    test_inds = random.sample(range(ttl_lens), int(ttl_lens * 0.1))  # 10% 作为测试数据
+    test_inds = random.sample(range(ttl_lens), int(ttl_lens * 0.1)) 
     tmp_inds = [ind for ind in range(ttl_lens) if ind not in test_inds]
-    val_inds = random.sample(tmp_inds, int(ttl_lens * 0.2))  # 20% 作为验证数据
-    train_inds = [ind for ind in tmp_inds if ind not in val_inds]  # 70% 作为训练数据
+    val_inds = random.sample(tmp_inds, int(ttl_lens * 0.2))  
+    train_inds = [ind for ind in tmp_inds if ind not in val_inds]  
 
     train_data = [trg_trajs[j] for j in train_inds]
     val_data = [trg_trajs[j] for j in val_inds]
@@ -300,7 +300,6 @@ def write_txt(output_file,data,data_type):
     with open(output_file, 'w') as file:
         for  df in tqdm(data):
             for index, row in df.iterrows():
-                # 提取四列数据并写入txt文件
                 timestamp = row['timestamp']
                 if data_type == 'input':
                     latitude = row['latitude']
@@ -310,7 +309,6 @@ def write_txt(output_file,data,data_type):
                     longitude = row['proj_lng']
                 eid = row['eid'] - 1
                 file.write(f"{timestamp} {latitude} {longitude} {int(eid)}\n")
-            # 在每个DataFrame的末尾写入-1
             file.write("-1\n")
     print('write well')
 
@@ -341,11 +339,10 @@ print('split data well')
 
 # # 5 get node2vec embedding and u_norm embedding 
 
-# 这个一张地图行一次就行了 
 from pre_processing.get_node2vec import train_epoch,save_embeddings,get_Node2Vec_model
 Node2Vec_model = get_Node2Vec_model(id_size,edge_index)
 loader = Node2Vec_model.loader(batch_size=128, shuffle=True)
 optimizer = torch.optim.SparseAdam(Node2Vec_model.parameters(), lr=0.01)
 # Train until delta loss has been reached
-train_epoch(Node2Vec_model, loader, optimizer,epoch = 100) # 默认一百
-save_embeddings(Node2Vec_model,id_size,save_path_map)  # 把地图的结点EMBEDDING 保存
+train_epoch(Node2Vec_model, loader, optimizer,epoch = 100) 
+save_embeddings(Node2Vec_model,id_size,save_path_map) 

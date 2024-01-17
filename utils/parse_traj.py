@@ -52,7 +52,7 @@ class ParseRawTraj(ParseTraj):
 
             oid = int(single_traj['uid'][0])
             tid = tid_list[i]
-            # 单点轨迹特征
+
             try:
                 pt_list = single_traj.apply(lambda x:STPoint(x.latitude,x.longitude,datetime.strptime(str(x.timestamp),time_format)), axis=1)
             except:
@@ -91,7 +91,6 @@ class ParseMMTraj(ParseTraj):
         for single_traj in tqdm(content_list):
             oid = int(single_traj['uid'][0])
             tid = tid_list[i]
-            # 单点轨迹特征
             try:
                 pt_list = single_traj.apply(lambda x:STPoint(x.latitude,x.longitude,datetime.strptime(str(x.timestamp),time_format), {'candi_pt':CandidatePoint(x.proj_lat, x.proj_lng, x.eid, x.error, x.offset, x.rate),'traj_features':[x.speed]}), axis=1)
             except:

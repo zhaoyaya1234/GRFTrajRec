@@ -49,7 +49,7 @@ Road Network: from  the publicly available road network data sites https://www.o
 
 ```
 1.1  data_prepare_Porto.ipynb : Preprocessing the Porto trajectory and road network data for usage in the model 
-1.2 data_prepare_Yancheng.ipynb: Preprocessing the Yancheng trajectory and road network data for usage in the model 
+1.2 data_prepare_YanCheng.ipynb: Preprocessing the YanCheng trajectory and road network data for usage in the model 
 1.3 Generating the Porto data  for usage in the model :
 nohup python -u data_generate.py    --city Porto  >data_generate_yancheng.out  2>&1 &
 1.4 Generating the YanCheng data  for usage in the model :

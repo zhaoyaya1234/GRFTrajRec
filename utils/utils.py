@@ -83,12 +83,10 @@ def get_conti_df(df):
     else:
         split_dfs = []
         current_group = []
-        # 遍历索引列表并将其分成多个子组
+      
         for i, index in enumerate(index_list):
             current_group.append(index)
-            # 检查是否是最后一个索引或者是否不连续
             if i == len(index_list) - 1 or index_list[i + 1] != index + 1:
-                # 使用iloc来获取当前子组的DataFrame
                 sub_df = df.iloc[current_group]
                 split_dfs.append(sub_df)
                 current_group = []
