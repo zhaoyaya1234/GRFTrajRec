@@ -224,7 +224,7 @@ np.save('{}/traj_dict_map.npy'.format(save_path_map),traj_dict_merge) # 注意�
 
 print(len(traj_dict_merge))
 
-# 处理文件里面的NAN
+# process NAN
 data_dir = save_path_map + '/traj_dict_map.npy'
 traj_dict_map= np.load(data_dir,allow_pickle=True).item()
 if opts.city == 'yancheng':
@@ -277,7 +277,6 @@ def data_augment(df_list):
     return selected_dfs
 
 def split_data_for_RN(save_path_map, random_seed=42):
-    # 设置随机种子以确保结果可重复
     random.seed(random_seed)
 
     trg_trajs = np.load('{}/traj_dict_last.npy'.format(save_path_map),allow_pickle=True).item()

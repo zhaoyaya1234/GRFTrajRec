@@ -8,7 +8,7 @@ import yaml
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from torch_geometric.nn import Node2Vec#明明白白写着
+from torch_geometric.nn import Node2Vec
 import time
 import datetime
 from tqdm import tqdm
@@ -53,7 +53,7 @@ def train_epoch(model, loader, optimizer,epoch):
     # Training with epoch iteration
     last_loss = 1
     print("Training node embedding with node2vec...")
-    for i in range(epoch):  # loss 差值是固定值，停止迭代
+    for i in range(epoch):  # loss 
         loss = train(model, loader, optimizer)
         print('Epoch: {0} \tLoss: {1:.4f}'.format(i, loss))
         if abs(last_loss - loss) < 1e-5:

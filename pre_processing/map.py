@@ -97,6 +97,6 @@ def get_candi_proba(rn_route,trg_trajs):
             time = [stpoint_list[k].time  for k in index]
             traj_dict_map[key] = raw_trajs[key][["uid","longitude","latitude","timestamp","speed","timestamp_long"]]
             map_values = {"eid":eid,"proj_lat":proj_lat,"proj_lng":proj_lng,"error":error,"offset":offset ,"rate" :rate,"time":time}
-            # 将值赋给DataFrame的指定行、多列
+
             traj_dict_map[key].loc[index, ['eid', 'proj_lat', 'proj_lng', 'error', 'offset', 'rate', 'time']] = map_values.values()
     return traj_dict_map

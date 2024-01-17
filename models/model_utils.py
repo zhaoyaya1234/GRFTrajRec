@@ -237,7 +237,7 @@ def get_dis_prob_vec(gps,src_rid, rn, parameters):
     else:
         cons_vec = torch.ones(parameters.id_size)
     return cons_vec
-# 只计算剩下的那些轨迹点，距离剩下的50米内的计算，超过50米的置0，缺失的点全部为1.
+
 def get_constraint_mask(src_grid_seqs, src_gps_seqs,src_rids, src_lengths, trg_lengths, rn, parameters):
     max_trg_len = max(trg_lengths)
     batch_size = src_grid_seqs.size(0)
@@ -579,71 +579,6 @@ def get_plot_seq(raw_input, predict, target, src_len, trg_len):
 # POIs
 #
 #####################################################################################################
-def filterPOI(df, mbr):
-    labels = ['公司企业', '美食', '运动健身', '教育培训', '购物', '政府机构', '旅游景点', '出入口', '房地产', '生活服务',
-                  '交通设施', '汽车服务', '酒店', '丽人', '医疗', '文化传媒', '金融', '休闲娱乐', '道路','自然地物', '行政地标', '门址']
-    eng_labels = ['company','food', 'gym', 'education','shopping','gov', 'viewpoint','entrance','house','life',
-                 'traffic','car','hotel','beauty','hospital','media','finance','entertainment','road','nature','landmark','address']
-    eng_labels_dict = {}
-    for i in range(len(labels)):
-        eng_labels_dict[labels[i]] = eng_labels[i]
-    
-    new_df = {'lat':[],'lng':[],'type':[]}
-    for i in range(len(df)):
-        gps = df.iloc[i]['经纬度wgs编码'].split(',')
-        lat = float(gps[0])
-        lng = float(gps[1])
-        label = df.iloc[i]['一级行业分类']
-        if mbr.contains(lat,lng) and (label is not np.nan):
-            new_df['lat'].append(lat)
-            new_df['lng'].append(lng)
-            new_df['type'].append(eng_labels_dict[label])
-    new_df = pd.DataFrame(new_df)
-    return new_df
-
-
-def get_poi_grid(mbr, grid_size, df):
-    labels = ['company','food','shopping','viewpoint','house']
-    new_df = filterPOI(df, mbr)
-    LAT_PER_METER = 8.993203677616966e-06
-    LNG_PER_METER = 1.1700193970443768e-05
-    lat_unit = LAT_PER_METER * grid_size
-    lng_unit = LNG_PER_METER * grid_size
-
-    max_xid = int((mbr.max_lat - mbr.min_lat) / lat_unit) + 1
-    max_yid = int((mbr.max_lng - mbr.min_lng) / lng_unit) + 1
-
-    grid_poi_dict = {}
-    for i in range(len(new_df)):
-        lat = new_df.iloc[i]['lat']
-        lng = new_df.iloc[i]['lng']
-        label = new_df.iloc[i]['type']
-        # only consider partial labels
-        if label in labels:
-            locgrid_x = int((lat - mbr.min_lat) / lat_unit) + 1
-            locgrid_y = int((lng - mbr.min_lng) / lng_unit) + 1
-
-            if (locgrid_x, locgrid_y) not in grid_poi_dict.keys():
-                grid_poi_dict[(locgrid_x, locgrid_y)] = {label:1}
-            else:
-                if label not in grid_poi_dict[(locgrid_x, locgrid_y)].keys():
-                    grid_poi_dict[(locgrid_x, locgrid_y)][label] = 1
-                else:
-                    grid_poi_dict[(locgrid_x, locgrid_y)][label]+=1
-                    
-    # key: grid, value: [0.1,0.5,0.5] normalized POI by column
-    grid_poi_df = pd.DataFrame(grid_poi_dict).T.fillna(0)
-    
-    norm_grid_poi_df=(grid_poi_df-grid_poi_df.min())/(grid_poi_df.max()-grid_poi_df.min())
-#         norm_grid_poi_df = grid_poi_df.div(grid_poi_df.sum(axis=1), axis=0)  # row normalization
-        
-    norm_grid_poi_dict = {}
-    for i in range(len(norm_grid_poi_df)):
-        k = norm_grid_poi_df.index[i]
-        v = norm_grid_poi_df.iloc[i].values
-        norm_grid_poi_dict[k] = v
-    
-    return norm_grid_poi_dict, grid_poi_df
 
 
 # extra_info_dir = "../data/map/extra_info/"
@@ -685,32 +620,23 @@ def get_choose_norm(rid,args):
 from haversine import haversine, Unit
 def get_gps_distance(src_gps,trg_gps,src_len):
     """
-    计算源GPS序列和目标GPS点之间的Haversine距离。
+Calculate the Haversine distance between the source GPS sequence and the target GPS point.
 
-    参数:
-        src_gps (torch.Tensor): 源序列的GPS坐标，形状为 [batch_size, seq_len, 2]，其中2代表经度和纬度。
-        trg_gps (torch.Tensor): 目标点的GPS坐标，形状为 [batch_size,2]，1是单个目标点，2代表经度和纬度。
-
-    返回:
-        distances (torch.Tensor): 每个源位置与目标位置之间的距离，形状为 [batch_size, seq_len]。
     """
-    # 确保输入是float类型的Tensor
+
     src_gps = src_gps.float()
     trg_gps = trg_gps.float()
     trg_gps = trg_gps.unsqueeze(1) 
-    # 为了进行元素级操作，我们需要扩展目标GPS坐标以匹配源序列的形状 [batch_size, seq_len, 2]
+
     trg_expanded = trg_gps.expand(-1, src_len, -1) 
 
-    # 将Tensor转换为列表，以便使用Haversine库
     src_list = src_gps.view(-1, 2).tolist()   # [batch_size * seq_len, 2]
     trg_list = trg_expanded.reshape(-1, 2).tolist()   # [batch_size * seq_len, 2]
 
-    # 计算所有点对之间的距离
     distances_list = [haversine(tuple(src), tuple(trg), unit=Unit.KILOMETERS) for src, trg in zip(src_list, trg_list)]
-    # 转换回Tensor
+
     distances_tensor = torch.tensor(distances_list, device=src_gps.device, dtype=torch.float32)
 
-    # 重新塑造以获得与源序列相同的批处理结构
     distances = distances_tensor.view(src_gps.shape[0], src_gps.shape[1])  # [batch_size, seq_len]
 
     return distances.unsqueeze(2)
@@ -724,21 +650,17 @@ def get_emb(road_emb, src_rids):
                                       device=road_emb.device,
                                       dtype=torch.float32)
     for idx in range(len(src_rids)):
-        # 使用 squeeze() 确保 src_rids[idx] 是一维向量
-        src_rid_vector = src_rids[idx].squeeze()
 
-        # 使用一维向量作为索引
+        src_rid_vector = src_rids[idx].squeeze()
         embedded_seq_tensor[idx, :] = road_emb.index_select(0, src_rid_vector)
 
     return embedded_seq_tensor
 
 
 def get_minus(tensor1, tensor2):
-    # 正规化张量
-    tensor1_norm = F.normalize(tensor1, p=2, dim=2)  # 正规化最后一个维度
-    tensor2_norm = F.normalize(tensor2, p=2, dim=2)
 
-    # 计算余弦相似度
+    tensor1_norm = F.normalize(tensor1, p=2, dim=2) 
+    tensor2_norm = F.normalize(tensor2, p=2, dim=2)
     minus_value = tensor1_norm-tensor2_norm
     return minus_value
 
@@ -746,7 +668,7 @@ def get_road_prob_minus(src_rids,input_id,src_len,road_emb):
 
     src_rids = src_rids.long()
     input_id = input_id.long()
-    # 扩展 input_id 以匹配 src_rids 的形状
+
     input_id_expanded = input_id.expand(-1, src_len).unsqueeze(2)  # [batch_size, seq_len, 1]
     # torch.Size([5121, 128]) torch.Size([128, 9, 1]) torch.Size([128, 9, 1])
     src_emb = get_emb(road_emb, src_rids)  +1e-6
@@ -761,15 +683,14 @@ def get_ID_distance(t,src,src_len):
     # t  int 
     # src : batch_size*seq_len*3
 
-    # 确保输入是float类型的Tensor
     
-    src_id = src[:, :, 2].unsqueeze(2)  # 获取位置索引
-    t_value = torch.full((src.shape[0], src_len, 1), t, dtype=torch.float32, device=src.device)  # 创建一个填充了当前t值的张量
-    distances_id =torch.abs(src_id - t_value)  # 计算位置索引差异 # batch_size*seq_len*1
+    src_id = src[:, :, 2].unsqueeze(2)  
+    t_value = torch.full((src.shape[0], src_len, 1), t, dtype=torch.float32, device=src.device) 
+    distances_id =torch.abs(src_id - t_value)  
     return distances_id
 
 def get_grid_dict(max_x,max_y):
-    grid = {}  # 创建一个空字典
+    grid = {} 
     for x in range(1,max_x + 1):
         for y in range(1,max_y + 1):
             grid[(x, y)] = x +max_x*(y-1)
@@ -782,22 +703,17 @@ import numpy as np
 
 def cal_temporal_mat(time_seqs):
     """
-    使用优化方法计算时间序列之间的时间关系矩阵。
+        time_seqs (torch.Tensor): [batch_size, seq_len, 1]
 
-    参数:
-        time_seqs (torch.Tensor): 时间序列，形状为 [batch_size, seq_len, 1]
-
-    返回:
-        temporal_matrices (torch.Tensor): 时间关系矩阵，形状为 [batch_size, seq_len, seq_len]
+        temporal_matrices (torch.Tensor):  [batch_size, seq_len, seq_len]
     """
-    # 预处理，将时间序列压缩并转换为浮点数
+
     time_seqs = time_seqs.squeeze(-1).float()
 
     batch_size, seq_len = time_seqs.shape
     temporal_matrices = torch.zeros((batch_size, seq_len, seq_len))
 
     for b in range(batch_size):
-        # 利用广播机制扩展并计算差值
         diffs = time_seqs[b].unsqueeze(1) - time_seqs[b].unsqueeze(0)
         temporal_matrices[b] = diffs.abs()
 
@@ -808,27 +724,21 @@ import numpy as np
 from haversine import haversine, Unit
 def cal_dis_mat(src_gps):
     """
-    使用向量化方法计算源GPS序列之间的Haversine距离矩阵。
+   
+        src_gps (torch.Tensor): [batch_size, seq_len, 2]
 
-    参数:
-        src_gps (torch.Tensor): 源序列的GPS坐标，形状为 [batch_size, seq_len, 2]，其中2代表经度和纬度。
-
-    返回:
-        distances (torch.Tensor): 每个源位置之间的距离矩阵，形状为 [batch_size, seq_len, seq_len]。
+  
+        distances (torch.Tensor):  [batch_size, seq_len, seq_len]
     """
     batch_size, seq_len, _ = src_gps.shape
 
-    # 将Tensor转换为NumPy数组，以便于进行矩阵操作
+
     src_gps_np = src_gps.cpu().numpy()
 
-    # 创建一个空的距离矩阵数组
     distance_matrices = np.zeros((batch_size, seq_len, seq_len))
 
     for b in range(batch_size):
         for i in range(seq_len):
             for j in range(seq_len):
-                # 计算距离并填充到矩阵中
                 distance_matrices[b, i, j] = haversine(src_gps_np[b, i], src_gps_np[b, j], unit=Unit.KILOMETERS)
-
-    # 将NumPy数组转换回Tensor
     return torch.tensor(distance_matrices)

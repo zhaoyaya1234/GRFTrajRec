@@ -46,7 +46,6 @@ class GAT(nn.Module):
 
     def forward(self, x,edge_index):
         x = F.relu(self.conv1(x, edge_index))
-        # 使用第二个GCNConv
         x = F.relu(self.conv2(x, edge_index))
         x = F.dropout(x)
         # (id_size, embedding_size)
@@ -73,18 +72,14 @@ from torch_geometric.nn import GCNConv
 class GCN(nn.Module):
     def __init__(self, in_feats, h_feats, num_classes):
         super(GCN, self).__init__()
-        
-        # 定义第一个GCN卷积层
+
         self.conv1 = GCNConv(in_feats, h_feats)
-        # 定义第二个GCN卷积层
         self.conv2 = GCNConv(h_feats, num_classes)
 
     def forward(self, x, edge_index):
-        # 通过第一个GCN卷积层并应用ReLU激活函数
+
         x = F.relu(self.conv1(x, edge_index))
-        # 通过第二个GCN卷积层并应用ReLU激活函数
         x = F.relu(self.conv2(x, edge_index))
-        # 应用Dropout
         x = F.dropout(x, training=self.training)
         return x  
 # ---------------------------------------CandiGNN---------------------------------
@@ -120,11 +115,11 @@ class ProbGAT(torch.nn.Module):
             k, i = edge_index[0],edge_index[1] # k->i
             h = (u[k]-u[i]) * (x[k] - x[i]) 
             h = torch.relu(self.att_fc1(h))
-            alpha= torch.softmax(self.att_fc2(h), dim=0) # 列平均
+            alpha= torch.softmax(self.att_fc2(h), dim=0) 
             # 2  get neighbor emb
             zeros = torch.zeros(1,self.hidden_dim).to(self.device) 
             neighbor_emb  = torch.cat([x[k]*alpha, zeros], dim=0)
-            x = x@ self.w[0] + torch.sum(neighbor_emb[self.neighbor_all[range(len(x))]],dim=0)@ (self.w[1])  # 行平均
+            x = x@ self.w[0] + torch.sum(neighbor_emb[self.neighbor_all[range(len(x))]],dim=0)@ (self.w[1])  
             x = torch.relu(self.fc1(x))
             x= self.fc2(x)
         return x
@@ -187,26 +182,23 @@ class TimeEmbedding(nn.Module):
         super(TimeEmbedding, self).__init__()
         self.device = device
         self.hidden_dim = 8
-        # 使用一个简单的线性层来实现连续时间嵌入
+
         self.time_linear = nn.Linear(1, parameters.time_dim)
 
     def forward(self, time_seqs, seq_lengths):
         all_list = []
         for one_seq in time_seqs:
-            # 转换时间戳为一天中的秒数
             seconds_of_day = []
             for timestamp in one_seq:
                 t = datetime.datetime.fromtimestamp(timestamp)
                 second = t.hour * 3600 + t.minute * 60 + t.second
                 seconds_of_day.append(second)
 
-            # 将秒数转换为张量，并进行归一化
             seconds_of_day = torch.tensor(seconds_of_day).float().unsqueeze(1)
             normalized_time = (seconds_of_day - seconds_of_day.min()) / (seconds_of_day.max() - seconds_of_day.min())
             embed = self.time_linear(normalized_time.to(self.device))
             all_list.append(embed)
 
-        # 对齐并堆叠所有序列
         max_len = max(seq_lengths)
         embedded_seq_tensor = torch.zeros((len(all_list), max_len, self.hidden_dim), dtype=torch.float32).to(self.device)
         for i, embed in enumerate(all_list):
@@ -220,14 +212,12 @@ class PositionalEncoding(nn.Module):
     def __init__(self, pos_dim, max_len=100):
         super(PositionalEncoding, self).__init__()
 
-        # 创建一个位置信息矩阵
         pe = torch.zeros(max_len, pos_dim)
         position = torch.arange(0, max_len, dtype=torch.float).unsqueeze(1)
         div_term = torch.exp(torch.arange(0, pos_dim, 2).float() * (-torch.log(torch.tensor(10000.0)) / pos_dim))
         pe[:, 0::2] = torch.sin(position * div_term)
         pe[:, 1::2] = torch.cos(position * div_term)
 
-        # 从不需要梯度计算的变量中删除pe，更多详情参见文档
         self.register_buffer('pe', pe)  # max_length*1*hid_dim
 
     def forward(self, position_ids):
@@ -235,7 +225,7 @@ class PositionalEncoding(nn.Module):
         """
         x: 输入张量，
         """
-        position_embeddings = self.pe[position_ids, :]  # 根据位置索引选择位置编码
+        position_embeddings = self.pe[position_ids, :] 
         return position_embeddings
 
 # -----------------------------4.3.1 attention-Enhanced Transformer Encoder----------------------------------
@@ -296,7 +286,7 @@ class Encoder(nn.Module):
         if self.Add_transformer_ST_flag:  
             self.linear = nn.Linear(input_dim, self.hid_dim)
             self.transformer = Transformer(self.hid_dim, self.n_layer,
-                                        self.device,parameters)  # GPSTransfomer 包括 Transformer,GRL,GREADOUT
+                                        self.device,parameters)  # GPSTransfomer  Transformer,GRL,GREADOUT
         else:
             self.rnn = nn.GRU(input_dim, self.hid_dim)
         
@@ -306,10 +296,8 @@ class Encoder(nn.Module):
             self.extra = Extra_MLP(parameters)
             self.fc_hid = nn.Linear(self.hid_dim + self.pro_output_dim, self.hid_dim)
     def normalize(self, x):
-    # 实现数据规范化逻辑，根据数据的特点进行相应的处理
         mean = torch.mean(x, dim=1, keepdim=True)
         std = torch.std(x, dim=1, keepdim=True)
-        # 处理第一维全为0的情况
         mask = (std == 0.0)
         std = torch.where(mask, torch.ones_like(std), std)
         normalized_x = torch.where(mask, x, (x - mean) / std)
@@ -339,7 +327,7 @@ class Encoder(nn.Module):
             grid = grid.squeeze()
             grid_emb  = self.grid_emb(grid)
 
-            src_id = src[:, :, 2].long().squeeze()  # 获取每个序列位置的位置索引
+            src_id = src[:, :, 2].long().squeeze()  
             src_id_emb=  self.pos_encoder(src_id)
 
             src_emb_2 = torch.cat((t_emb,grid_emb,src_id_emb),dim = -1)

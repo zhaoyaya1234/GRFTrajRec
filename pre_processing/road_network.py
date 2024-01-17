@@ -63,10 +63,10 @@ def load_GNN_graph(path):
     
     # 2 neighbor_all
     num_nodes = len(g.nodes())
-    num_edges = len(edge_index) # edge_index  是边与边之间的链接关系
+    num_edges = len(edge_index) 
     neighbor_all  =  [torch.arange(num_edges)[edge_index[:,1] == j] for j in tqdm(range(1,num_nodes))]
-    max_len = max(map(len,neighbor_all)) # 右边往左传
-    neighbor_zero = [num_edges]*max_len # 第 0条边的邻居用num_edges表示
+    max_len = max(map(len,neighbor_all)) 
+    neighbor_zero = [num_edges]*max_len 
     neighbor_all = [neighbor_zero]+[list(l) + [num_edges]*(max_len-len(l)) for l in neighbor_all]
     neighbor_all = torch.tensor(neighbor_all).to(torch.int64)
     

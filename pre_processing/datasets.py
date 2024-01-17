@@ -269,9 +269,7 @@ class Dataset(torch.utils.data.Dataset):
                 return None, None, None, None, None, None, None
 
             # get source sequence
-            '''
-            拿剩下的这些去预测
-            '''
+
             ds_pt_list = self.downsample_traj(tmp_pt_list, ds_type, keep_ratio)
 
             ls_grid_seq, ls_gps_seq,point_features, ls_src_eids,ls_src_timeids,ls_src_rate_s,rid_features,hours, ttl_t,choose_rid = self.get_src_seq(ds_pt_list,online_features_dict,raw2new_rid_dict)
@@ -384,7 +382,7 @@ class Dataset(torch.utils.data.Dataset):
         time_interval = self.time_span
         ttl_t = self.get_noramlized_t(first_pt, last_pt, time_interval)
         for ds_pt in ds_pt_list: 
-            hours.append(ds_pt.time.hour) # 每个点对应的小时
+            hours.append(ds_pt.time.hour) 
             t = self.get_noramlized_t(first_pt, ds_pt, time_interval)
             ls_gps_seq.append([ds_pt.lat, ds_pt.lng])
             locgrid_xid, locgrid_yid = self.gps2grid(ds_pt, self.mbr, self.grid_size)
@@ -398,7 +396,7 @@ class Dataset(torch.utils.data.Dataset):
         
         search_distance = self.get_search_distance(ds_pt_list)
         choose_rid = [candidate for k,ds_pt in enumerate(ds_pt_list) for  candidate in get_candidates_eid(ds_pt,self.rn, search_distance[k])]
-        return ls_grid_seq, ls_gps_seq,point_features, ls_src_eids,ls_src_timeids,ls_src_rate_s,rid_features,hours, ttl_t,choose_rid # 每个点对应的小时，总时间
+        return ls_grid_seq, ls_gps_seq,point_features, ls_src_eids,ls_src_timeids,ls_src_rate_s,rid_features,hours, ttl_t,choose_rid 
 
     '''
     改轨迹特征
@@ -491,7 +489,7 @@ class Dataset(torch.utils.data.Dataset):
             else:
                 new_pt_list = old_pt_list[::int(1 / keep_ratio)] + [end_pt]
             
-        elif ds_type == 'random': # 采样不采第一个点和最后一个点,但是最终的src 必须包含第一个点和最后一个点
+        elif ds_type == 'random': 
             sampled_inds = sorted(\
                 random.sample(range(1, len(old_pt_list) - 1), int((len(old_pt_list) - 2) * keep_ratio)))
             new_pt_list = [start_pt] + list(np.array(old_pt_list)[sampled_inds]) + [end_pt]
@@ -501,7 +499,7 @@ class Dataset(torch.utils.data.Dataset):
             num_points_in_block = len(old_pt_list) - 2 - num_points_to_keep
 
             # Randomly select the starting point of the block within the valid range
-            # random.randint 两头的数都可以取到 
+            # random.randint 
             block_start = random.randint(1, len(old_pt_list) - num_points_in_block-1)
 
             # Calculate the ending point of the block
