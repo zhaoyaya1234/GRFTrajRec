@@ -1,0 +1,83 @@
+nohup: ignoring input
+cuda:1
+yancheng
+-----------------------1 load raw graph----------------------
+# of nodes:20486
+# of edges:50909
+---------------------2 load self generated graph---------------
+# self generated of nodes:50909
+---------------------3 load GNN graph---------------
+self generated edge_index finished
+  0%|          | 0/7060 [00:00<?, ?it/s] 45%|████▍     | 3156/7060 [00:00<00:00, 31557.32it/s] 99%|█████████▉| 7005/7060 [00:00<00:00, 35630.30it/s]100%|██████████| 7060/7060 [00:00<00:00, 35009.31it/s]
+# self generated of nodes:7061
+# self generated of edges:17771
+Training node embedding with node2vec...
+Epoch: 0 	Loss: 4.8330
+Epoch: 1 	Loss: 2.7558
+Epoch: 2 	Loss: 1.8617
+Epoch: 3 	Loss: 1.4190
+Epoch: 4 	Loss: 1.1739
+Epoch: 5 	Loss: 1.0296
+Epoch: 6 	Loss: 0.9437
+Epoch: 7 	Loss: 0.8887
+Epoch: 8 	Loss: 0.8547
+Epoch: 9 	Loss: 0.8306
+Epoch: 10 	Loss: 0.8140
+Epoch: 11 	Loss: 0.8018
+Epoch: 12 	Loss: 0.7929
+Epoch: 13 	Loss: 0.7855
+Epoch: 14 	Loss: 0.7805
+Epoch: 15 	Loss: 0.7760
+Epoch: 16 	Loss: 0.7726
+Epoch: 17 	Loss: 0.7695
+Epoch: 18 	Loss: 0.7673
+Epoch: 19 	Loss: 0.7652
+Epoch: 20 	Loss: 0.7632
+Epoch: 21 	Loss: 0.7622
+Epoch: 22 	Loss: 0.7614
+Epoch: 23 	Loss: 0.7600
+Epoch: 24 	Loss: 0.7598
+Epoch: 25 	Loss: 0.7591
+Epoch: 26 	Loss: 0.7581
+Epoch: 27 	Loss: 0.7579
+Epoch: 28 	Loss: 0.7577
+Epoch: 29 	Loss: 0.7573
+Epoch: 30 	Loss: 0.7570
+Epoch: 31 	Loss: 0.7567
+Epoch: 32 	Loss: 0.7568
+Epoch: 33 	Loss: 0.7562
+Epoch: 34 	Loss: 0.7562
+Epoch: 35 	Loss: 0.7565
+Epoch: 36 	Loss: 0.7565
+Epoch: 37 	Loss: 0.7564
+Epoch: 38 	Loss: 0.7561
+Epoch: 39 	Loss: 0.7563
+Epoch: 40 	Loss: 0.7561
+Epoch: 41 	Loss: 0.7564
+Epoch: 42 	Loss: 0.7563
+Epoch: 43 	Loss: 0.7565
+Epoch: 44 	Loss: 0.7566
+Epoch: 45 	Loss: 0.7564
+Epoch: 46 	Loss: 0.7563
+Epoch: 47 	Loss: 0.7565
+Epoch: 48 	Loss: 0.7564
+Epoch: 49 	Loss: 0.7565
+Epoch: 50 	Loss: 0.7566
+Epoch: 51 	Loss: 0.7568
+Epoch: 52 	Loss: 0.7570
+Epoch: 53 	Loss: 0.7564
+Epoch: 54 	Loss: 0.7567
+Epoch: 55 	Loss: 0.7566
+Epoch: 56 	Loss: 0.7568
+Epoch: 57 	Loss: 0.7567
+Epoch: 58 	Loss: 0.7567
+Epoch: 59 	Loss: 0.7569
+Epoch: 60 	Loss: 0.7571
+Epoch: 61 	Loss: 0.7573
+Epoch: 62 	Loss: 0.7569
+Epoch: 63 	Loss: 0.7568
+Epoch: 64 	Loss: 0.7569
+Epoch: 65 	Loss: 0.7566
+Epoch: 66 	Loss: 0.7574
+Epoch: 67 	Loss: 0.7574
+stop training

@@ -1,0 +1,13 @@
+dataset: tdrive
+distance_type: TP
+cuda: 0
+
+feature_size: 64   # node2vec feature size
+
+node2vec:
+  walk_length: 20
+  context_size: 10
+  walks_per_node: 10
+  num_neg_samples: 1
+  p: 1
+  q: 1
