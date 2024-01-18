@@ -56,7 +56,7 @@ nohup python -u data_generate.py    --city Porto  >data_generate_yancheng.out  2
 nohup python -u data_generate.py    --city yancheng  >data_generate_yancheng.out  2>&1 &
 ```
 
-* 4.2  Training & testing :   (For further experimentation, you can also set the `keep_ratio` to 0.0625 and choose either `block` or `uniform` for the `ds_type`)
+* 4.2  Training & testing :   (For further experiment, you can also set the `keep_ratio` to 0.0625 and choose either `block` or `uniform` for the `ds_type`)
 
 ```
 nohup python -u muti_main.py    --i 0    --city Porto   --hid_dim 512   --epochs 30    --keep_ratio  0.125   --ds_type random     --test_code  >test_Porto.out 2>&1 &
