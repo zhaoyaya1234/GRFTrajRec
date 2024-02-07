@@ -274,14 +274,6 @@ print('training dataloader shape: ' + str(len(train_iterator)))
 print('validation dataloader shape: ' + str(len(valid_iterator)))
 print('test dataset dataloader: ' + str(len(test_iterator)))
 
-args.Add_Graph_Representation_flag = False
-args.Add_change_GNN_flag =False
-args.Add_Traj_Representation_flag =True
-    
-args.Add_transformer_ST_flag =True
-args.Add_feature_differences_flag =True
-
-
 enc = Encoder(args)
 dec = DecoderMulti(args)
 model = Seq2SeqMulti(enc, dec, device,args).to(device)
