@@ -1,7 +1,5 @@
 ### GRFTrajRec: A Graph-based Representation Framework for Trajectory Recovery via Spatiotemporal Interval-Informed Seq2Seq
 
-#### Anonymous Submission with Paper ID  5300 .
-
 ### 1 Requirements
 
 * `python==3.7.16`
